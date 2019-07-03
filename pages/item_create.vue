@@ -1,7 +1,7 @@
 <template>
   <v-layout>
 
-    <v-flex>
+    <v-flex >
       <form action @submit.prevent="sendMessage" class="form">
       <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
         &emsp;商品名を入力してください
@@ -17,12 +17,32 @@
       <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
         &emsp;画像を追加してください
       </p>
-      <v-text-field
-        label="Select Image"
-        @click="pickFile"
-        v-model="imageName"
-        prepend-icon="attach_file"
-      ></v-text-field>
+      <v-container fluid grid-list-sm>
+        <v-layout>
+          <v-flex xs6 sm4>
+            <v-img
+              src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
+            ></v-img>
+          </v-flex>
+
+          <v-flex xs6 sm4>
+            <v-img src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"> </v-img>
+          </v-flex>
+
+          <v-flex xs6 sm4>
+            <v-img src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"></v-img>
+          </v-flex>
+        </v-layout>
+      </v-container>
+        <v-layout justify-center>
+          <v-btn
+            @click="pickFile"
+            v-model="imageName"
+            fab="true"
+          >
+            <v-icon>photo_camera</v-icon>
+          </v-btn>
+        </v-layout>
       <input
         type="file"
         style="display: none"
@@ -33,6 +53,19 @@
 
       <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
         &emsp;商品の説明を入力してください
+      </p>
+      <v-flex xs12>
+        <v-textarea
+          solo
+          name="input-7-4"
+          v-model="input"
+          label=""
+          value=""
+          height=150
+        ></v-textarea>
+      </v-flex>
+      <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
+        &emsp;商品のカテゴリを追加してください
       </p>
       <v-flex xs12>
         <v-textarea

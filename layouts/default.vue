@@ -19,7 +19,7 @@
       </v-container>
     </v-content>
 
-
+<v-footer>
  <v-bottom-nav :value="true" :active.sync="bottomNav"
  :fixed=true >
   <v-btn color="teal" flat value="recent" to = "/" >
@@ -45,7 +45,10 @@
         <span>マイページ</span>
         <v-icon>accessibility</v-icon>
       </v-btn>
-    </v-bottom-nav>
+     
+          </v-bottom-nav>
+</v-footer>
+     
 
   </v-app>
   
