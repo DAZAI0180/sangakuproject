@@ -19,29 +19,25 @@
       </p>
       <img
         width=33%
-        v-show="uploadedImage1"
-        class="preview-item-file"
-        :src="uploadedImage1"
-        alt=""
+        v-show="flag"
+        class="preview-item-file1"
+        :src="uploadedImage[0]"
       /><img
         width=33%
-        v-show="uploadedImage2"
-        class="preview-item-file"
-        :src="uploadedImage2"
-        alt=""
+        v-show="flag"
+        class="preview-item-file2"
+        :src="uploadedImage[1]"
       /><img
         width=33%
-        v-show="uploadedImage3"
-        class="preview-item-file"
-        :src="uploadedImage3"
-        alt=""
+        v-show="flag"
+        class="preview-item-file3"
+        :src="uploadedImage[2]"
       />
         <v-layout justify-center>
           <v-btn
-            v-show="!uploadedImage"
             @click="pickFile"
             v-model="imageName"
-            fab="true"
+            fab
           >
             <v-icon>photo_camera</v-icon>
           </v-btn>
@@ -124,12 +120,11 @@ import { mapActions, mapState, mapGetters } from 'vuex'
       photo: null,
       photo_url: null,
       dialog: false,
-      imageName: "",
+      imageName: [],
       imageUrl: "",
-      imageFile: "",
-      uploadedImage1: '',
-      uploadedImage2: '',
-      uploadedImage3: '',
+      imageFile: [],
+      uploadedImage: [],
+      flag: "",
     }
     //console.log(user);
   },
@@ -142,13 +137,16 @@ import { mapActions, mapState, mapGetters } from 'vuex'
             const db = firebase.firestore()
             // ストレージオブジェクト作成
             var storageRef = firebase.storage().ref();
+            for(var i=0;i <= 3;i++){
             // ファイルのパスを設定
-            var mountainsRef = storageRef.child(`images/${this.imageName}`);
+            var mountainsRef = storageRef.child(`images/${this.imageName[i]}`);
             // ファイルを適用してファイルアップロード開始
-            mountainsRef.put(this.imageFile).then(snapshot => {
-              snapshot.ref.getDownloadURL().then(downloadURL => {
-                this.imageUrl = downloadURL;
+            mountainsRef.put(this.imageFile[i]).then(snapshot => {
+            });
+            }
+            snapshot.ref.getDownloadURL().then(downloadURL => {
                 //db.collection("images").add({ downloadURL });
+                    this.uploadedImage.push(downloadURL);
                     var d = new Date();
                     var year  = d.getFullYear();
                     var month = d.getMonth() + 1;
@@ -163,7 +161,9 @@ import { mapActions, mapState, mapGetters } from 'vuex'
                     title:this.title,
                     text: this.input,
                     category: this.category,
-                    url: this.imageUrl,
+                    url1: this.uploadedImage[0],
+                    url2: this.uploadedImage[1],
+                    url3: this.uploadedImage[2],
                     created_at:time,
                   };
                   // console.log(this.imageUrl);
@@ -176,8 +176,6 @@ import { mapActions, mapState, mapGetters } from 'vuex'
             this.title = ""
                   //console.log(setDoc);
               });
-            });
-            
             // console.log(this.imageUrl);
             //var setDoc = db.collection('item').doc().set(data);
              // フォームを空にする
@@ -187,43 +185,26 @@ import { mapActions, mapState, mapGetters } from 'vuex'
       pickFile() {
       this.$refs.image.click();
     },
-    //画像Preview
-    createImage(file) {
-      const reader = new FileReader();
-      reader.onload = e => {
-        if(this.uploadedImage2!=""){
-          this.uploadedImage3 = e.target.result;
-        }else if(this.uploadedImage1!=""){
-          this.uploadedImage2 = e.target.result;
-        }else if(this.uploadedImage1==""){
-          this.uploadedImage1 = e.target.result;
-        }
-      };
-      reader.readAsDataURL(file);
-    },
-    remove() {
-      this.uploadedImage1 = false;
-    },
     //ファイルの選択変えた時に動きそう
      onFilePicked(e) {
       const files = e.target.files;
-      
       if (files[0] !== undefined) {
-        this.imageName = files[0].name;
-        if (this.imageName.lastIndexOf(".") <= 0) {
-          return;
-        }
+        this.imageName.push(files[0].name);
         const fr = new FileReader();
+        fr.onload = e => {
+          this.flag = "tinpo";
+          this.uploadedImage.push(e.target.result);
+          //console.log("配列の中身を見てみようのコーナー（いらない）"+this.uploadedImage[1]);
+        };
         fr.readAsDataURL(files[0]);
         fr.addEventListener("load", () => {
           this.imageUrl = fr.result;
-          this.imageFile = files[0]; // this is an image file that can be sent to server...
+          this.imageFile.push(files[0]); // this is an image file that can be sent to server...
+          console.log("配列の中身を見てみようのコーナー（いらない）:"+this.uploadedImage[1]);
+          console.log("name:"+this.imageName);
+          console.log("file:"+this.imageFile);
         });
-      } else {
-        this.imageName = "";
-        this.imageFile = "";
-        this.imageUrl = "";
-      }
+      } 
     },
 
       logout() {
