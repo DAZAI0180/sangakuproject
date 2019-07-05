@@ -17,25 +17,28 @@
       <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
         &emsp;画像を追加してください
       </p>
-      <v-container fluid grid-list-sm>
-        <v-layout>
-          <v-flex xs6 sm4>
-            <v-img
-              src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
-            ></v-img>
-          </v-flex>
-
-          <v-flex xs6 sm4>
-            <v-img src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"> </v-img>
-          </v-flex>
-
-          <v-flex xs6 sm4>
-            <v-img src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"></v-img>
-          </v-flex>
-        </v-layout>
-      </v-container>
+      <img
+        width=33%
+        v-show="uploadedImage1"
+        class="preview-item-file"
+        :src="uploadedImage1"
+        alt=""
+      /><img
+        width=33%
+        v-show="uploadedImage2"
+        class="preview-item-file"
+        :src="uploadedImage2"
+        alt=""
+      /><img
+        width=33%
+        v-show="uploadedImage3"
+        class="preview-item-file"
+        :src="uploadedImage3"
+        alt=""
+      />
         <v-layout justify-center>
           <v-btn
+            v-show="!uploadedImage"
             @click="pickFile"
             v-model="imageName"
             fab="true"
@@ -67,16 +70,21 @@
       <p style="width:100%; margin:10px 0 13px 0; background-color:gray; color:white;line-height:200%">
         &emsp;商品のカテゴリを追加してください
       </p>
-      <v-flex xs12>
-        <v-textarea
-          solo
-          name="input-7-4"
-          v-model="input"
-          label=""
-          value=""
-          height=150
-        ></v-textarea>
-      </v-flex>
+      <v-layout row>
+        <v-flex xs10>
+          <v-text-field
+            v-model="category"
+          ></v-text-field>
+        </v-flex>
+        <v-flex  xs2>
+          <v-layout justify-center>
+            <v-btn color="primary" fab small dark>
+              <v-icon>edit</v-icon>
+            </v-btn>
+          </v-layout>
+        </v-flex>
+      </v-layout>
+      
       <v-flex xs12>
           <v-btn color="red" round large type="submit" style="width:44%">出品する</v-btn>
           <v-btn color="blue" round large style="width:44%">キャンセル</v-btn>
@@ -86,6 +94,7 @@
   </v-layout>
 </template>
 
+<script src="/******/v-preview-input/v-preview-input.js"></script>
 <script>
 import createPersistedState from 'vuex-persistedstate'
 import firebase from '~/plugins/firebase'
@@ -110,13 +119,17 @@ import { mapActions, mapState, mapGetters } from 'vuex'
       user: {},  // ユーザー情報
       text: [],  // 取得したメッセージを入れる配列
       input: '',  // 入力したメッセージ
+      category: '',
       title: '',
       photo: null,
       photo_url: null,
       dialog: false,
       imageName: "",
       imageUrl: "",
-      imageFile: ""
+      imageFile: "",
+      uploadedImage1: '',
+      uploadedImage2: '',
+      uploadedImage3: '',
     }
     //console.log(user);
   },
@@ -149,7 +162,7 @@ import { mapActions, mapState, mapGetters } from 'vuex'
                     name: user.displayName,
                     title:this.title,
                     text: this.input,
-                    category: "食べ物",
+                    category: this.category,
                     url: this.imageUrl,
                     created_at:time,
                   };
@@ -174,9 +187,27 @@ import { mapActions, mapState, mapGetters } from 'vuex'
       pickFile() {
       this.$refs.image.click();
     },
+    //画像Preview
+    createImage(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        if(this.uploadedImage2!=""){
+          this.uploadedImage3 = e.target.result;
+        }else if(this.uploadedImage1!=""){
+          this.uploadedImage2 = e.target.result;
+        }else if(this.uploadedImage1==""){
+          this.uploadedImage1 = e.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    remove() {
+      this.uploadedImage1 = false;
+    },
     //ファイルの選択変えた時に動きそう
      onFilePicked(e) {
       const files = e.target.files;
+      
       if (files[0] !== undefined) {
         this.imageName = files[0].name;
         if (this.imageName.lastIndexOf(".") <= 0) {
@@ -206,6 +237,7 @@ import { mapActions, mapState, mapGetters } from 'vuex'
           alert(error)
         })
       }
+      
     },
   
 };
