@@ -67,17 +67,12 @@
         &emsp;商品のカテゴリを追加してください
       </p>
       <v-layout row>
-        <v-flex xs10>
+        <v-flex xs12>
           <v-text-field
             v-model="category"
+            label=""
+            solo
           ></v-text-field>
-        </v-flex>
-        <v-flex  xs2>
-          <v-layout justify-center>
-            <v-btn color="primary" fab small dark>
-              <v-icon>edit</v-icon>
-            </v-btn>
-          </v-layout>
         </v-flex>
       </v-layout>
       
@@ -121,10 +116,10 @@ import { mapActions, mapState, mapGetters } from 'vuex'
       photo_url: null,
       dialog: false,
       imageName: [],
-      imageUrl: "",
       imageFile: [],
       uploadedImage: [],
       flag: "",
+      imageUrl: [],
     }
     //console.log(user);
   },
@@ -137,16 +132,16 @@ import { mapActions, mapState, mapGetters } from 'vuex'
             const db = firebase.firestore()
             // ストレージオブジェクト作成
             var storageRef = firebase.storage().ref();
-            for(var i=0;i <= 3;i++){
-            // ファイルのパスを設定
-            var mountainsRef = storageRef.child(`images/${this.imageName[i]}`);
-            // ファイルを適用してファイルアップロード開始
-            mountainsRef.put(this.imageFile[i]).then(snapshot => {
-            });
-            }
-            snapshot.ref.getDownloadURL().then(downloadURL => {
-                //db.collection("images").add({ downloadURL });
-                    this.uploadedImage.push(downloadURL);
+            for(var i=0;i<3;i++){
+              // ファイルのパスを設定
+              var mountainsRef = storageRef.child(`images/${this.imageName[i]}`);
+              // ファイルを適用してファイルアップロード開始
+              mountainsRef.put(this.imageFile[i]).then(snapshot => {
+                //パスを取得
+                snapshot.ref.getDownloadURL().then(downloadURL =>{
+                this.imageUrl.push(downloadURL+",");
+                console.log("upload to "+this.imageUrl);
+                  if(i === 0){
                     var d = new Date();
                     var year  = d.getFullYear();
                     var month = d.getMonth() + 1;
@@ -161,24 +156,27 @@ import { mapActions, mapState, mapGetters } from 'vuex'
                     title:this.title,
                     text: this.input,
                     category: this.category,
-                    url1: this.uploadedImage[0],
-                    url2: this.uploadedImage[1],
-                    url3: this.uploadedImage[2],
                     created_at:time,
-                  };
-                  // console.log(this.imageUrl);
-                  var setDoc = db.collection('item').doc().set(data);
+                    url: this.imageUrl,
+                    };
+                    // console.log(this.imageUrl);
+                    var setDoc = db.collection('item').doc().set(data);
+                    console.log("書き込み処理が通った");
+                    this.input = "";
+                    this.imageName= [],
+                    this.imageFile = [],
+                    this.uploadedImage = [],
+                    this.title = "",
+                    this.category = ""
+                    //console.log(setDoc);
+                    // console.log(this.imageUrl);
+                    //var setDoc = db.collection('item').doc().set(data);
+                    // フォームを空にする
 
-                              this.input = "";
-            this.imageName= "",
-            this.imageUrl = "",
-            this.imageFile = "",
-            this.title = ""
-                  //console.log(setDoc);
+                  }
+                });
               });
-            // console.log(this.imageUrl);
-            //var setDoc = db.collection('item').doc().set(data);
-             // フォームを空にする
+            }
 
         })
       },
@@ -194,15 +192,12 @@ import { mapActions, mapState, mapGetters } from 'vuex'
         fr.onload = e => {
           this.flag = "tinpo";
           this.uploadedImage.push(e.target.result);
-          //console.log("配列の中身を見てみようのコーナー（いらない）"+this.uploadedImage[1]);
         };
         fr.readAsDataURL(files[0]);
         fr.addEventListener("load", () => {
-          this.imageUrl = fr.result;
           this.imageFile.push(files[0]); // this is an image file that can be sent to server...
-          console.log("配列の中身を見てみようのコーナー（いらない）:"+this.uploadedImage[1]);
+          console.log("配列の中身を見てみようのコーナー（いらない）:"+this.uploadedImage);
           console.log("name:"+this.imageName);
-          console.log("file:"+this.imageFile);
         });
       } 
     },
