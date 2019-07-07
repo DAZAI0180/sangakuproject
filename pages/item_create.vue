@@ -132,51 +132,59 @@ import { mapActions, mapState, mapGetters } from 'vuex'
             const db = firebase.firestore()
             // ストレージオブジェクト作成
             var storageRef = firebase.storage().ref();
-            for(var i=0;i<3;i++){
-              // ファイルのパスを設定
-              var mountainsRef = storageRef.child(`images/${this.imageName[i]}`);
-              // ファイルを適用してファイルアップロード開始
-              mountainsRef.put(this.imageFile[i]).then(snapshot => {
-                //パスを取得
-                snapshot.ref.getDownloadURL().then(downloadURL =>{
-                this.imageUrl.push(downloadURL+",");
-                console.log("upload to "+this.imageUrl);
-                  if(i === 0){
-                    var d = new Date();
-                    var year  = d.getFullYear();
-                    var month = d.getMonth() + 1;
-                    var day   = d.getDate();
-                    var hour  = ( d.getHours()   < 10 ) ? '0' + d.getHours()   : d.getHours();
-                    var min   = ( d.getMinutes() < 10 ) ? '0' + d.getMinutes() : d.getMinutes();
-                    var sec   = ( d.getSeconds() < 10 ) ? '0' + d.getSeconds() : d.getSeconds();
-                    var time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
-                    var data = {
-                    id: user.uid,
-                    name: user.displayName,
-                    title:this.title,
-                    text: this.input,
-                    category: this.category,
-                    created_at:time,
-                    url: this.imageUrl,
-                    };
-                    // console.log(this.imageUrl);
-                    var setDoc = db.collection('item').doc().set(data);
-                    console.log("書き込み処理が通った");
-                    this.input = "";
-                    this.imageName= [],
-                    this.imageFile = [],
-                    this.uploadedImage = [],
-                    this.title = "",
-                    this.category = ""
-                    //console.log(setDoc);
-                    // console.log(this.imageUrl);
-                    //var setDoc = db.collection('item').doc().set(data);
-                    // フォームを空にする
 
-                  }
+            // ファイルのパスを設定(1)
+            var mountainsRef = storageRef.child(`images/${this.imageName[0]}`);
+            // ファイルを適用してファイルアップロード開始
+            mountainsRef.put(this.imageFile[0]).then(snapshot => {
+              //パスを取得
+              snapshot.ref.getDownloadURL().then(downloadURL =>{
+              this.imageUrl.push(downloadURL);
+              console.log("upload to "+this.imageName[0]);
+
+                if(this.imageName[1] !== undefined){
+
+                  // ファイルのパスを設定(2)
+                  var mountainsRef = storageRef.child(`images/${this.imageName[1]}`);
+                  // ファイルを適用してファイルアップロード開始
+                  mountainsRef.put(this.imageFile[1]).then(snapshot => {
+                    //パスを取得
+                    snapshot.ref.getDownloadURL().then(downloadURL =>{
+                    this.imageUrl.push(downloadURL);
+                    console.log("upload to "+this.imageName[1]);
+
+                      if(this.imageName[2] !== undefined){
+
+                        // ファイルのパスを設定(3)
+                        var mountainsRef = storageRef.child(`images/${this.imageName[2]}`);
+                        // ファイルを適用してファイルアップロード開始
+                        mountainsRef.put(this.imageFile[2]).then(snapshot => {
+                          //パスを取得
+                          snapshot.ref.getDownloadURL().then(downloadURL =>{
+                          this.imageUrl.push(downloadURL);
+                          console.log("upload to "+this.imageName[2]);
+
+                          this.DBwriting(db,user);
+
+                          });
+                        });
+
+                      }else{
+                        this.DBwriting(db,user);
+                      }
+                  
+                    });
+                  });
+
+                }else{
+                  this.DBwriting(db,user);
+                }
+
+                
+
                 });
               });
-            }
+            
 
         })
       },
@@ -196,8 +204,7 @@ import { mapActions, mapState, mapGetters } from 'vuex'
         fr.readAsDataURL(files[0]);
         fr.addEventListener("load", () => {
           this.imageFile.push(files[0]); // this is an image file that can be sent to server...
-          console.log("配列の中身を見てみようのコーナー（いらない）:"+this.uploadedImage);
-          console.log("name:"+this.imageName);
+          console.log("pushed:"+this.imageName);
         });
       } 
     },
@@ -212,9 +219,45 @@ import { mapActions, mapState, mapGetters } from 'vuex'
         }).catch((error) => {
           alert(error)
         })
-      }
-      
+      },
+
+      DBwriting(db,user) {
+      var d = new Date();
+      var year  = d.getFullYear();
+      var month = d.getMonth() + 1;
+      var day   = d.getDate();
+      var hour  = ( d.getHours()   < 10 ) ? '0' + d.getHours()   : d.getHours();
+      var min   = ( d.getMinutes() < 10 ) ? '0' + d.getMinutes() : d.getMinutes();
+      var sec   = ( d.getSeconds() < 10 ) ? '0' + d.getSeconds() : d.getSeconds();
+      var time = ( year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec );
+      var data = {
+      user_id: user.uid,
+      user_name: user.displayName,
+      item_name:this.title,
+      item_text: this.input,
+      category: this.category,
+      created_at:time,
+      image_url: this.imageUrl,
+      };
+      // console.log(this.imageUrl);
+      var setDoc = db.collection('item').doc().set(data);
+      console.log("書き込み処理が通った");
+      this.input = "";
+      this.imageName= [],
+      this.imageFile = [],
+      this.uploadedImage = [],
+      this.imageUrl = [],
+      this.title = "",
+      this.category = ""
+      //console.log(setDoc);
+      // console.log(this.imageUrl);
+      //var setDoc = db.collection('item').doc().set(data);
+      // フォームを空にする
+
     },
+
+
+  },
   
 };
 
